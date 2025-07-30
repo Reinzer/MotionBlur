@@ -322,7 +322,7 @@
     <Reference Include="UnityEngine.XRModule">
       <HintPath>$(HollowKnightRefs)/UnityEngine.XRModule.dll</HintPath>
     </Reference>
-    <Reference Include="UnityEngine.XRModule">
+    <Reference Include="Satchel">
       <HintPath>$(HollowKnightRefs)/Mods/Satchel/Satchel.dll</HintPath>
     </Reference>
   </ItemGroup>
@@ -330,7 +330,6 @@
     <EmbeddedResource Include="Bundles\kinoshaders" />
   </ItemGroup>
   <ItemGroup>
-    <None Include=".gitignore" />
     <None Include="Resources\.gitignore" />
   </ItemGroup>
 </Project>

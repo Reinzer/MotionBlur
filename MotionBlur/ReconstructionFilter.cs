@@ -89,7 +89,7 @@ namespace Kino
                 ReleaseTemporaryRT(tile);
 
                 // 7th pass - Reconstruction pass
-                _material.SetFloat("_LoopCount", Mathf.Clamp(sampleCount, 2, 64) / 2);
+                _material.SetFloat("_LoopCount", Mathf.Clamp(sampleCount, 2, 10000000) / 2);
                 _material.SetTexture("_NeighborMaxTex", neighborMax);
                 _material.SetTexture("_VelocityTex", vbuffer);
                 Graphics.Blit(source, destination, _material, 5);

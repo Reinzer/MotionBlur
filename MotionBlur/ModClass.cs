@@ -128,9 +128,15 @@ namespace MotionBlur
                             GS.ShutterAngle = angle;
                             motionBlur.shutterAngle = GS.ShutterAngle;
                         },
-                        () => GS.ShutterAngle
+                        () => GS.ShutterAngle,
+                        _characterLimit: 8,
+                        _config: new Satchel.BetterMenus.Config.InputFieldConfig
+                        {
+                            inputBoxWidth = 240f,
+                            fontSize = 46
+                        }
                     ),
-                    new TextPanel(name: "The amount of sample points, which affects quality and performance. VALUES BELOW 1 BREAK THE MOD.", fontSize: _fontSize),
+                    new TextPanel(name: "The amount of sample points, which affects quality and performance.", fontSize: _fontSize),
                     Blueprints.IntInputField
                     (
                         "Sample Count",
@@ -140,9 +146,15 @@ namespace MotionBlur
                             GS.SampleCount = count;
                             motionBlur.sampleCount = GS.SampleCount;
                         },
-                        () => GS.SampleCount
+                        () => GS.SampleCount,
+                        _characterLimit: 8,
+                        _config: new Satchel.BetterMenus.Config.InputFieldConfig
+                        {
+                            inputBoxWidth = 240f,
+                            fontSize = 46
+                        }
                     ),
-                    new TextPanel(name: "How many frames will be stored in video memory. VALUES BELOW 1 BREAK THE MOD.", fontSize: _fontSize),
+                    new TextPanel(name: "How many frames will be stored in video memory.", fontSize: _fontSize),
                     Blueprints.IntInputField
                     (
                         "Frame Count",
