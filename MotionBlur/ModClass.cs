@@ -11,7 +11,6 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
-using System.Xml.Linq;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UObject = UnityEngine.Object;
@@ -29,7 +28,7 @@ namespace MotionBlur
     public class MotionBlur : Mod, ICustomMenuMod, IGlobalSettings<GlobalSettings>
     {
         internal static MotionBlur Instance;
-        public override string GetVersion() => "1.0.0.0";
+        public override string GetVersion() => "1.0.1.0";
 
         public static GlobalSettings GS = new GlobalSettings();
         #region Save/Load settings
