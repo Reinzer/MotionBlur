@@ -19,10 +19,11 @@ namespace MotionBlur
 {
     public class GlobalSettings
     {
-        public float ShutterAngle = 360f;
-        public int SampleCount = 32;
+        public float ShutterAngle = 1080f;
+        public int SampleCount = 1000;
         public float FrameBlendingStrength = 1f;
-        public int FrameCount = 4;
+        public int FrameCount = 8;
+        public bool Enabled = true;
     }
 
     public class MotionBlur : Mod, ICustomMenuMod, IGlobalSettings<GlobalSettings>
@@ -52,16 +53,36 @@ namespace MotionBlur
         {
             Log("Initializing");
             Instance = this;
+
+            LoadShadersFromBundle();
+
+            if(GS.Enabled)
+            {
+                ModHooks.AfterSavegameLoadHook += AfterSaveLoaded;
+
+                Enable();
+            }
+
+            Log("Initialized");
+        }
+
+        void Disable()
+        {
+            cam = Camera.main;
+            cam.gameObject.RemoveComponent<Kino.Motion>();
+        }
+
+        void Enable()
+        {
             cam = Camera.main;
 
+            if(cam.gameObject.GetComponent<Kino.Motion>() != null) return;
+
             motionBlur = cam.gameObject.AddComponent<Kino.Motion>();
-            LoadShadersFromBundle();
             motionBlur.Init(reconstruction, frameBlending, GS.FrameCount);
             motionBlur.shutterAngle = GS.ShutterAngle;
             motionBlur.sampleCount = GS.SampleCount;
             motionBlur.frameBlending = GS.FrameBlendingStrength;
-
-            Log("Initialized");
         }
         
         void LoadShadersFromBundle()
@@ -117,7 +138,29 @@ namespace MotionBlur
                 int _fontSize = 30;
                 MenuRef = new Menu("MotionBlur", new Element[]
                 {
-                    new TextPanel(name: "The angle of rotary shutter. Larger values give longer exposure.", fontSize: _fontSize),
+                    new HorizontalOption
+                    (
+                        "Mod",
+                        "",
+                        new[] {"Enabled", "Disabled" },
+                        index =>
+                        {
+                            GS.Enabled = index == 0;
+                            if(GS.Enabled)
+                            {
+                                ModHooks.AfterSavegameLoadHook += AfterSaveLoaded;
+                                Enable();
+                            }
+                            else
+                            {
+                                ModHooks.AfterSavegameLoadHook -= AfterSaveLoaded;
+                                Disable();
+                            }
+                        },
+                        () => GS.Enabled ? 0 : 1
+
+                    ),
+                    new TextPanel(name: "The angle of rotary shutter. Larger values give longer exposure.", fontSize: _fontSize, width: 1200),
                     Blueprints.FloatInputField
                     (
                         "Shutter Angle",
@@ -125,6 +168,7 @@ namespace MotionBlur
                         {
                             angle = Mathf.Clamp(angle, 0f, 10000000f);
                             GS.ShutterAngle = angle;
+                            if(cam == null) return;
                             motionBlur.shutterAngle = GS.ShutterAngle;
                         },
                         () => GS.ShutterAngle,
@@ -135,7 +179,7 @@ namespace MotionBlur
                             fontSize = 46
                         }
                     ),
-                    new TextPanel(name: "The amount of sample points, which affects quality and performance.", fontSize: _fontSize),
+                    new TextPanel(name: "The amount of sample points, which affects quality and performance.", fontSize: _fontSize, width: 1400),
                     Blueprints.IntInputField
                     (
                         "Sample Count",
@@ -143,6 +187,7 @@ namespace MotionBlur
                         {
                             count = Mathf.Clamp(count, 1, 10000000);
                             GS.SampleCount = count;
+                            if(cam == null) return;
                             motionBlur.sampleCount = GS.SampleCount;
                         },
                         () => GS.SampleCount,
@@ -161,23 +206,17 @@ namespace MotionBlur
                         {
                             count = Mathf.Clamp(count, 1, 10000);
                             GS.FrameCount = count;
-
-                            cam.gameObject.RemoveComponent<Kino.Motion>();
-                            motionBlur = cam.gameObject.AddComponent<Kino.Motion>();
-
-                            motionBlur.Init(reconstruction, frameBlending, GS.FrameCount);
-                            motionBlur.shutterAngle = GS.ShutterAngle;
-                            motionBlur.sampleCount = GS.SampleCount;
-                            motionBlur.frameBlending = GS.FrameBlendingStrength;
+                            Disable();
+                            Enable();
                         },
                         () => GS.FrameCount
                     ),
-                    new TextPanel(name: "The strength of multiple frame blending.", fontSize: _fontSize),
                     new CustomSlider (
                         name: "Frame Blending Strength",
                         storeValue: val =>
                         {
                             GS.FrameBlendingStrength = val;
+                            if(cam == null) return;
                             motionBlur.frameBlending = GS.FrameBlendingStrength;
                         },
                         loadValue: () => GS.FrameBlendingStrength,
@@ -190,5 +229,10 @@ namespace MotionBlur
             return MenuRef.GetMenuScreen(modListMenu);
         }
         public bool ToggleButtonInsideMenu => true;
+
+        public void AfterSaveLoaded(SaveGameData saveData)
+        {
+            Enable();
+        }
     }
 }
